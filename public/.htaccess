@@ -1,0 +1,28 @@
+# ─────────────────────────────────────────────────────────────
+# Apache configuration for React Router SPA (Monetra)
+# ─────────────────────────────────────────────────────────────
+# This file is placed in the public/ folder. Vite will copy it
+# directly to the dist/ directory during compilation.
+# ─────────────────────────────────────────────────────────────
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # OPTION A: Hosted in a subfolder (e.g., /expenses-/)
+  # If your site is hosted at https://domain.com/expenses-/ (GitHub Pages style path)
+  RewriteBase /expenses-/
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-l
+  RewriteRule . /expenses-/index.html [L]
+
+  # OPTION B: Hosted at the root of the domain (e.g., /)
+  # Un-comment the lines below and comment out the Option A lines if you move to a root domain.
+  # RewriteBase /
+  # RewriteRule ^index\.html$ - [L]
+  # RewriteCond %{REQUEST_FILENAME} !-f
+  # RewriteCond %{REQUEST_FILENAME} !-d
+  # RewriteCond %{REQUEST_FILENAME} !-l
+  # RewriteRule . /index.html [L]
+</IfModule>

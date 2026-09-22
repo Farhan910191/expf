@@ -1,8 +1,9 @@
 import axios from 'axios';
 
 // In development, fall back to localhost. In production, VITE_API_URL must be set.
-const baseURL = import.meta.env.VITE_API_URL
+const rawBaseURL = import.meta.env.VITE_API_URL
   || (import.meta.env.DEV ? 'http://127.0.0.1:8000/api/' : '/api/');
+const baseURL = rawBaseURL.endsWith('/') ? rawBaseURL : `${rawBaseURL}/`;
 
 const API = axios.create({ baseURL });
 

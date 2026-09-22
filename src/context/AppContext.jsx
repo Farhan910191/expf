@@ -77,8 +77,19 @@ export function AppProvider({ children }) {
       await API.post('signup/', { username, email, password });
       return { success: true };
     } catch (err) {
-      const errors = err.response?.data;
-      const msg = errors ? Object.values(errors).flat().join(', ') : 'Signup failed';
+      const data = err.response?.data;
+      let msg = 'Signup failed. Please try again.';
+      if (typeof data === 'string') {
+        msg = data;
+      } else if (data?.detail) {
+        msg = data.detail;
+      } else if (data?.error) {
+        msg = data.error;
+      } else if (data?.errors && typeof data.errors === 'object') {
+        msg = Object.values(data.errors).flat().join(', ');
+      } else if (data && typeof data === 'object') {
+        msg = Object.values(data).flat().join(', ');
+      }
       return { success: false, error: msg };
     }
   };

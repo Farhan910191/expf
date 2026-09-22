@@ -43,7 +43,11 @@ export default function Signup() {
         localStorage.setItem(`profileImage_${cleanUsername}`, profileImage);
       }
       localStorage.setItem(`email_${cleanUsername}`, cleanEmail);
-      navigate('/login');
+      if (result.autoLogin) {
+        navigate('/');
+      } else {
+        navigate('/login');
+      }
     } else {
       setError(result.error);
     }

@@ -22,6 +22,7 @@ API.interceptors.response.use(
   (err) => {
     if (err.response && err.response.status === 401) {
       localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
       // HashRouter uses #/ paths
       const hashPath = window.location.hash.replace('#', '');
       if (hashPath !== '/login' && hashPath !== '/signup') {

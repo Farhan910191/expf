@@ -23,6 +23,16 @@ export function AppProvider({ children }) {
   }, [theme]);
   const toggleTheme = () => setTheme(t => t === 'light' ? 'dark' : 'light');
 
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    setIsAuth(false);
+    setExpenses([]);
+    setIncomes([]);
+    setBudgets([]);
+    setNotifications([]);
+  }, []);
+
   // Fetch all data when authenticated
   const fetchAll = useCallback(async () => {
     if (!localStorage.getItem('token')) return;
@@ -50,10 +60,14 @@ export function AppProvider({ children }) {
       });
       setIsAdmin(profRes.data.is_admin || false);
     } catch (err) {
-      console.error('Error fetching data:', err);
+      if (err.response && err.response.status === 401) {
+        logout();
+      } else {
+        console.error('Error fetching data:', err);
+      }
     }
     setLoading(false);
-  }, []);
+  }, [logout]);
 
   useEffect(() => {
     if (isAuth) fetchAll();
@@ -73,9 +87,19 @@ export function AppProvider({ children }) {
   };
 
   const signup = async (username, email, password) => {
+    // Clear any stale tokens before signing up
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    setIsAuth(false);
+
     try {
-      await API.post('signup/', { username, email, password });
-      return { success: true };
+      const res = await API.post('signup/', { username, email, password });
+      if (res.data?.access) {
+        localStorage.setItem('token', res.data.access);
+        if (res.data.refresh) localStorage.setItem('refreshToken', res.data.refresh);
+        setIsAuth(true);
+      }
+      return { success: true, autoLogin: !!res.data?.access };
     } catch (err) {
       const data = err.response?.data;
       let msg = 'Signup failed. Please try again.';
@@ -92,16 +116,6 @@ export function AppProvider({ children }) {
       }
       return { success: false, error: msg };
     }
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
-    setIsAuth(false);
-    setExpenses([]);
-    setIncomes([]);
-    setBudgets([]);
-    setNotifications([]);
   };
 
   // Expenses CRUD

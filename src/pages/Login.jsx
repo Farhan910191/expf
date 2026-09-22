@@ -16,7 +16,7 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     setError('');
-    const result = await login(username, password);
+    const result = await login(username.trim(), password);
     if (result.success) {
       navigate('/');
     } else {
@@ -47,10 +47,21 @@ export default function Login() {
             </div>
           </div>
           <div className="form-group">
-            <label className="form-label">Username</label>
+            <label className="form-label">Username or Email</label>
             <div style={{ position: 'relative' }}>
               <FiMail style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              <input className="form-input" style={{ paddingLeft: '42px' }} type="text" placeholder="Enter your username" value={username} onChange={e => setUsername(e.target.value)} required />
+              <input
+                className="form-input"
+                style={{ paddingLeft: '42px' }}
+                type="text"
+                placeholder="Enter your username or email"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck="false"
+                required
+              />
             </div>
           </div>
           <div className="form-group">

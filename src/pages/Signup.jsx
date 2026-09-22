@@ -35,12 +35,14 @@ export default function Signup() {
     }
     setLoading(true);
     setError('');
-    const result = await signup(username, email, password);
+    const cleanUsername = username.trim();
+    const cleanEmail = email.trim();
+    const result = await signup(cleanUsername, cleanEmail, password);
     if (result.success) {
       if (profileImage) {
-        localStorage.setItem(`profileImage_${username}`, profileImage);
+        localStorage.setItem(`profileImage_${cleanUsername}`, profileImage);
       }
-      localStorage.setItem(`email_${username}`, email);
+      localStorage.setItem(`email_${cleanUsername}`, cleanEmail);
       navigate('/login');
     } else {
       setError(result.error);
@@ -80,7 +82,17 @@ export default function Signup() {
               <label className="form-label">Username</label>
               <div style={{ position: 'relative' }}>
                 <FiUser style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input className="form-input" style={{ paddingLeft: '42px' }} placeholder="Choose a username" value={username} onChange={e => setUsername(e.target.value)} required />
+                <input
+                  className="form-input"
+                  style={{ paddingLeft: '42px' }}
+                  placeholder="Choose a username"
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck="false"
+                  required
+                />
               </div>
             </div>
             <div className="form-group">

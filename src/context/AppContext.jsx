@@ -82,7 +82,26 @@ export function AppProvider({ children }) {
       setIsAuth(true);
       return { success: true };
     } catch (err) {
-      return { success: false, error: err.response?.data?.detail || 'Invalid credentials' };
+      console.error('[Auth] Login error details:', err);
+      const data = err.response?.data;
+      let msg = '';
+      if (typeof data === 'string') {
+        msg = data;
+      } else if (data?.detail) {
+        msg = data.detail;
+      } else if (data?.error) {
+        msg = data.error;
+      } else if (data && typeof data === 'object') {
+        msg = Object.entries(data)
+          .map(([k, v]) => `${k !== 'non_field_errors' ? k + ': ' : ''}${Array.isArray(v) ? v.join(', ') : v}`)
+          .join(' | ');
+      }
+      if (!msg) {
+        msg = err.message
+          ? `Network error (${err.message}). Could not reach backend: ${API.defaults.baseURL}`
+          : 'Invalid username or password.';
+      }
+      return { success: false, error: msg };
     }
   };
 
@@ -101,8 +120,9 @@ export function AppProvider({ children }) {
       }
       return { success: true, autoLogin: !!res.data?.access };
     } catch (err) {
+      console.error('[Auth] Signup error details:', err);
       const data = err.response?.data;
-      let msg = 'Signup failed. Please try again.';
+      let msg = '';
       if (typeof data === 'string') {
         msg = data;
       } else if (data?.detail) {
@@ -110,9 +130,18 @@ export function AppProvider({ children }) {
       } else if (data?.error) {
         msg = data.error;
       } else if (data?.errors && typeof data.errors === 'object') {
-        msg = Object.values(data.errors).flat().join(', ');
+        msg = Object.entries(data.errors)
+          .map(([k, v]) => `${k !== 'non_field_errors' ? k + ': ' : ''}${Array.isArray(v) ? v.join(', ') : v}`)
+          .join(' | ');
       } else if (data && typeof data === 'object') {
-        msg = Object.values(data).flat().join(', ');
+        msg = Object.entries(data)
+          .map(([k, v]) => `${k !== 'non_field_errors' ? k + ': ' : ''}${Array.isArray(v) ? v.join(', ') : v}`)
+          .join(' | ');
+      }
+      if (!msg) {
+        msg = err.message
+          ? `Network error (${err.message}). Could not connect to API: ${API.defaults.baseURL}. Please verify backend status and VITE_API_URL.`
+          : 'Signup failed. Please try again.';
       }
       return { success: false, error: msg };
     }
